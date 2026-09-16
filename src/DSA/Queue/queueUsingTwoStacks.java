@@ -1,93 +1,69 @@
 package DSA.Queue;
 import java.util.Stack;
 
-// ============================================================
-// IMPLEMENT QUEUE USING TWO STACKS
-//
-// Idea:
-//   Stack1 (inbox)  — always push new elements here
-//   Stack2 (outbox) — for dequeue, if empty, transfer all from stack1
-//
-// This gives amortized O(1) for all operations.
-// ============================================================
 
+// ============================================================
+// APPROACH 2: OPTIMAL — TWO STACK LAZY TRANSFER
+// This is the BEST solution — used in real interviews
+//
+// TWO STACKS:
+//   inbox  (stack1) → always push new elements here
+//   outbox (stack2) → always pop/peek from here
+//
+// KEY INSIGHT (Lazy Transfer):
+//   Transfer inbox → outbox ONLY when outbox is EMPTY
+//   Don't transfer on every push — wait until needed!
+//
+// This gives AMORTIZED O(1) for all operations:
+//   Each element is moved AT MOST ONCE (inbox → outbox)
+//   So total cost across all operations = O(n) total
+//   = O(1) amortized per operation
+//
+// push():  O(1)         ← just push to inbox
+// pop():   O(1) amortized ← transfer only when needed
+// peek():  O(1) amortized
+// empty(): O(1)
+// ============================================================
 
 public class queueUsingTwoStacks {
 
     Stack<Integer> inbox  = new Stack<>();  // For enqueue
     Stack<Integer> outbox = new Stack<>();  // For dequeue
 
-    // enqueue: always push to inbox
-    public void enqueue(int data) {
-        inbox.push(data);
+    // ========================
+    // push(): Always to inbox
+    // Time: O(1) always
+    // ========================
+    public void push(int x) {
+        inbox.push(x);
+        // No rearranging needed!
     }
 
-    // dequeue: transfer inbox→outbox if outbox is empty
-    public int dequeue() {
+    // pop(): O(1) amortized
+    public int pop() {
+        // If outbox empty, pour inbox into outbox
         if (outbox.isEmpty()) {
-            // Pour all from inbox into outbox (reverses order → FIFO!)
-            while (!inbox.isEmpty()) {
+            while (!inbox.isEmpty()) {       // ← transfer inlined here
                 outbox.push(inbox.pop());
             }
-        }
-        if (outbox.isEmpty()) {
-            System.out.println("Queue is empty!");
-            return -1;
         }
         return outbox.pop();
     }
 
+    // peek(): O(1) amortized
     public int peek() {
+        // Same logic as pop() but don't remove
         if (outbox.isEmpty()) {
-            while (!inbox.isEmpty()) {
+            while (!inbox.isEmpty()) {       // ← transfer inlined here
                 outbox.push(inbox.pop());
             }
         }
-        return outbox.isEmpty() ? -1 : outbox.peek();
+        return outbox.peek();
     }
 
     public boolean isEmpty() {
         return inbox.isEmpty() && outbox.isEmpty();
     }
 
-    public static void main(String[] args) {
+   }
 
-        queueUsingTwoStacks q = new queueUsingTwoStacks();
-
-        // -----------------------------------------------
-        // DRY RUN:
-        //
-        // enqueue(10): inbox=[10], outbox=[]
-        // enqueue(20): inbox=[10,20], outbox=[]
-        // enqueue(30): inbox=[10,20,30], outbox=[]
-        //
-        // dequeue():
-        //   outbox is empty → transfer inbox to outbox:
-        //   pop 30 from inbox → push to outbox → outbox=[30]
-        //   pop 20 from inbox → push to outbox → outbox=[30,20]
-        //   pop 10 from inbox → push to outbox → outbox=[30,20,10]
-        //   inbox=[]
-        //   outbox.pop() → 10 ✅ (FIFO preserved!)
-        //
-        // dequeue(): outbox=[30,20] → pop → 20 ✅
-        //
-        // enqueue(40): inbox=[40], outbox=[30]
-        //
-        // dequeue(): outbox not empty → pop → 30 ✅
-        // dequeue(): outbox empty → transfer inbox=[40]
-        //            outbox=[40] → pop → 40 ✅
-        // -----------------------------------------------
-
-        q.enqueue(10);
-        q.enqueue(20);
-        q.enqueue(30);
-
-        System.out.println(q.dequeue());  // 10 (first in, first out)
-        System.out.println(q.dequeue());  // 20
-
-        q.enqueue(40);
-
-        System.out.println(q.dequeue());  // 30
-        System.out.println(q.dequeue());  // 40
-    }
-}
