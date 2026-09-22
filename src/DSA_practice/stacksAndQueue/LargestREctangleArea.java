@@ -1,5 +1,4 @@
 package DSA_practice.stacksAndQueue;
-import java.util.Stack;
 
 public class LargestREctangleArea {
 
@@ -19,7 +18,6 @@ public class LargestREctangleArea {
      * PRACTICAL SPEED  → 2-3x faster than Stack<Integer>
      */
     public int largestRectangleArea(int[] heights) {
-
 
         // ═══════════════════════════════════════════════════
         // LINE 1: Get the length of the input array
@@ -225,4 +223,5 @@ public class LargestREctangleArea {
         // ═══════════════════════════════════════════════════
         return max;
     }
+
 }
